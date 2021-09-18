@@ -6,14 +6,16 @@
         <button class="delete" @click="allTodoDone"></button>
         <input class="new-todo" placeholder="무슨일을 해야할까요?" v-model="newTodo" @keyup.enter="addTodo"/>
       </div>
-      <div v-for="(todo, index) in todoList" :key="todo.id">
-        <Todo class="item" :number="index" :id="todo.id" :details="todo.details" :status="todo.status"
-              @delete-todo-clicked="deleteTodo"/>
+      <div v-for="(todo, index) in filteredTodoList" :key="todo.id">
+        <Todo class="item" :number="index" :todo="todo"
+              @update-todo="updateTodo" @delete-todo-clicked="deleteTodo"/>
       </div>
-      <div>
-        <button>
-          
-        </button>
+      {{ numberOfLeftTodo }}item left
+      <div class="btn-group">
+        <button @click="showAll">All</button>
+        <button @click="showActive">Active</button>
+        <button @click="showCompleted">Completed</button>
+        <button @click="clearCompleted" v-show="todoList.length > numberOfLeftTodo">Clear completed</button>
       </div>
     </div>
   </div>
@@ -37,18 +39,45 @@ export default {
         {"id": "4", "details": "수업 내용 정리하기4", "status": "done"},
         {"id": "5", "details": "수업 내용 정리하기5", "status": "active"},
       ],
+      filteredTodoList: [],
     }
+  },
+  created() {
+    this.filteredTodoList = this.todoList
+  },
+  computed: {
+    numberOfLeftTodo() {
+      return this.todoList.filter(e => e.status === "active").length
+    },
   },
   methods: {
     addTodo() {
       this.todoList.push({"id": "1", "details": this.newTodo, "status": "active"})
+      this.newTodo=""
+    },
+    updateTodo(number, todo) {
+      this.todoList.splice(number, 1, todo)
     },
     deleteTodo(number) {
       this.todoList.splice(number, 1)
     },
     allTodoDone() {
-      this.todoList.forEach(x => x.status = "done")
-    }
+      this.numberOfLeftTodo ? this.todoList.forEach(x => x.status = "done")
+          : this.todoList.forEach(x => x.status = "active")
+    },
+    clearCompleted() {
+      this.filteredTodoList = this.filteredTodoList.filter(x => x.status === "active")
+      this.todoList = this.todoList.filter(x => x.status === "active")
+    },
+    showAll() {
+      this.filteredTodoList = this.todoList
+    },
+    showActive() {
+      this.filteredTodoList = this.todoList.filter(x => x.status === "active")
+    },
+    showCompleted() {
+      this.filteredTodoList = this.todoList.filter(x => x.status === "done")
+    },
   }
 }
 </script>
@@ -67,7 +96,8 @@ export default {
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2),
   0 25px 50px 0 rgba(0, 0, 0, 0.1);
 }
-.item{
-  flex : 1 1 8%;
+
+.item {
+  flex: 1 1 8%;
 }
 </style>
