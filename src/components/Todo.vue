@@ -1,8 +1,8 @@
 <template>
   <div class="todo">
     <input id="toggle" type="checkbox" v-model="todo.status" @change="updateTodo" true-value="done" false-value="active">
-    <input class="edit" v-model="todo.details" @dblclick="changeIsReadOnly" @blur="updateTodo" @keyup.enter="updateTodo" @keyup.esc="cancelUpdateTodo" :readonly="isReadOnly">
-    <button class="delete" @click="deleteTodo"></button>
+    <input class="edit" v-model="todo.details" @dblclick="changeIsReadOnly" @blur="updateTodo" @keyup.enter="updateTodo" @keyup.esc="cancelUpdateTodo" style="[text-decoration: line-through" :readonly="isReadOnly">
+    <button class="delete" @click="deleteTodo">x</button>
   </div>
 </template>
 
@@ -45,5 +45,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

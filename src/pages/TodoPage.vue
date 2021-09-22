@@ -3,15 +3,15 @@
     <h1>Todos</h1>
     <div class="container">
       <div>
-        <button class="delete" @click="allTodoDone"></button>
+        <button class="delete" @click="allTodoDone">❯</button>
         <input class="new-todo" placeholder="무슨일을 해야할까요?" v-model="newTodo" @keyup.enter="addTodo"/>
       </div>
       <div v-for="(todo, index) in filteredTodoList" :key="todo.id">
         <Todo class="item" :number="index" :todo="todo"
               @update-todo="updateTodo" @delete-todo-clicked="deleteTodo"/>
       </div>
-      {{ numberOfLeftTodo }}item left
       <div class="btn-group">
+        {{ numberOfLeftTodo }} item left
         <button @click="showAll">All</button>
         <button @click="showActive">Active</button>
         <button @click="showCompleted">Completed</button>
@@ -89,9 +89,10 @@ export default {
   background-color: beige;
   flex-direction: column;
   justify-content: space-around;
-  min-width: 230px;
+  align-items: center;
+  min-width: 500px;
   max-width: 550px;
-  min-height: 230px;
+  min-height: 500px;
   margin: 130px 0 40px 0;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2),
   0 25px 50px 0 rgba(0, 0, 0, 0.1);
