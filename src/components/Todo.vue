@@ -29,7 +29,7 @@ export default {
       this.isReadOnly=false
     },
     updateTodo(){
-      this.$emit('update-todo',this.number, this.todo)
+      this.$emit('update-todo',this.todo);
       this.isReadOnly=true
     },
     cancelUpdateTodo(){
@@ -38,7 +38,7 @@ export default {
       this.isReadOnly=true
     },
     deleteTodo(){
-      this.$emit('delete-todo-clicked', this.number)
+      this.$emit('delete-todo-clicked', this.todo.id)
     }
   }
 }

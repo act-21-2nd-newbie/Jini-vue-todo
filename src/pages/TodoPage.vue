@@ -12,9 +12,9 @@
       </div>
       <div class="btn-group">
         {{ numberOfLeftTodo }} item left
-        <button @click="showAll">All</button>
-        <button @click="showActive">Active</button>
-        <button @click="showCompleted">Completed</button>
+        <button @click="visibility=`showAll`">All</button>
+        <button @click="visibility=`showActive`">Active</button>
+        <button @click="visibility=`showCompleted`">Completed</button>
         <button @click="clearCompleted" v-show="todoList.length > numberOfLeftTodo">Clear completed</button>
       </div>
     </div>
@@ -23,6 +23,7 @@
 
 <script>
 import Todo from "../components/Todo";
+import {getTodoList, createTodoItem, updateTodoItemById, patchTodoItemById, deleteTodoItemById} from "@/service/todo-service";
 
 export default {
   name: "TodoPage",
@@ -32,54 +33,62 @@ export default {
   data() {
     return {
       newTodo: "",
-      todoList: [
-        {"id": "1", "details": "수업 내용 정리하기1", "status": "active"},
-        {"id": "2", "details": "수업 내용 정리하기2", "status": "done"},
-        {"id": "3", "details": "수업 내용 정리하기3", "status": "active"},
-        {"id": "4", "details": "수업 내용 정리하기4", "status": "done"},
-        {"id": "5", "details": "수업 내용 정리하기5", "status": "active"},
-      ],
-      filteredTodoList: [],
+      todoList: [],
+      visibility: "showAll",
+      filters : {
+        showAll(todoList) {
+          return todoList;
+        },
+        showActive(todoList) {
+          return todoList.filter(x => x.status === "active")
+        },
+        showCompleted(todoList) {
+          return todoList.filter(x => x.status === "done")
+        },
+      }
     }
   },
-  created() {
-    this.filteredTodoList = this.todoList
+  async mounted() {
+    await this.loadTodoList();
   },
   computed: {
+    filteredTodoList() {
+      return this.filters[this.visibility](this.todoList);
+    },
     numberOfLeftTodo() {
       return this.todoList.filter(e => e.status === "active").length
     },
   },
   methods: {
-    addTodo() {
-      this.todoList.push({"id": "1", "details": this.newTodo, "status": "active"})
-      this.newTodo=""
+    async loadTodoList() {
+      const response = await getTodoList();
+      this.todoList = response;
     },
-    updateTodo(number, todo) {
-      this.todoList.splice(number, 1, todo)
+    async addTodo() {
+      await createTodoItem(this.newTodo);
+      await this.loadTodoList();
+      this.newTodo = "";
     },
-    deleteTodo(number) {
-      this.todoList.splice(number, 1)
+    async updateTodo(todo) {
+      await updateTodoItemById(todo.id, todo.details, todo.status);
+      await this.loadTodoList();
     },
-    allTodoDone() {
-      this.numberOfLeftTodo ? this.todoList.forEach(x => x.status = "done")
-          : this.todoList.forEach(x => x.status = "active")
+    async deleteTodo(id) {
+      await deleteTodoItemById(id);
+      await this.loadTodoList();
     },
-    clearCompleted() {
-      this.filteredTodoList = this.filteredTodoList.filter(x => x.status === "active")
-      this.todoList = this.todoList.filter(x => x.status === "active")
+    async allTodoDone() {
+      await (this.numberOfLeftTodo ? this.todoList.forEach(todoItem => patchTodoItemById(todoItem.id, {"status":"done"}))
+          : this.todoList.forEach(todoItem => patchTodoItemById(todoItem.id, {"status":"active"})));
+      await this.loadTodoList();
     },
-    showAll() {
-      this.filteredTodoList = this.todoList
-    },
-    showActive() {
-      this.filteredTodoList = this.todoList.filter(x => x.status === "active")
-    },
-    showCompleted() {
-      this.filteredTodoList = this.todoList.filter(x => x.status === "done")
+    async clearCompleted() {
+      await this.todoList.filter(todoItem => todoItem.status === "done").forEach(completedTodoItem => deleteTodoItemById(completedTodoItem.id));
+      await this.loadTodoList();
     },
   }
 }
+
 </script>
 
 <style scoped>
