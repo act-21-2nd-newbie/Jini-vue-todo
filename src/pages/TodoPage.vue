@@ -23,7 +23,13 @@
 
 <script>
 import Todo from "../components/Todo";
-import {getTodoList, createTodoItem, updateTodoItemById, patchTodoItemById, deleteTodoItemById} from "@/service/todo-service";
+import {
+  getTodoList,
+  createTodoItem,
+  updateTodoItemById,
+  patchTodoItemById,
+  deleteTodoItemById
+} from "@/service/todo-service";
 
 export default {
   name: "TodoPage",
@@ -35,7 +41,7 @@ export default {
       newTodo: "",
       todoList: [],
       visibility: "showAll",
-      filters : {
+      filters: {
         showAll(todoList) {
           return todoList;
         },
@@ -62,6 +68,7 @@ export default {
   methods: {
     async loadTodoList() {
       const response = await getTodoList();
+      console.log(response);
       this.todoList = response;
     },
     async addTodo() {
@@ -78,12 +85,14 @@ export default {
       await this.loadTodoList();
     },
     async allTodoDone() {
-      await (this.numberOfLeftTodo ? this.todoList.forEach(todoItem => patchTodoItemById(todoItem.id, {"status":"done"}))
-          : this.todoList.forEach(todoItem => patchTodoItemById(todoItem.id, {"status":"active"})));
+      const promises = this.numberOfLeftTodo ? this.todoList.map(todoItem => patchTodoItemById(todoItem.id, {"status": "done"}))
+          : this.todoList.map(todoItem => patchTodoItemById(todoItem.id, {"status": "active"}));
+      await Promise.all(promises);
       await this.loadTodoList();
     },
     async clearCompleted() {
-      await this.todoList.filter(todoItem => todoItem.status === "done").forEach(completedTodoItem => deleteTodoItemById(completedTodoItem.id));
+      const promises = this.todoList.filter(todoItem => todoItem.status === "done").map(completedTodoItem => deleteTodoItemById(completedTodoItem.id));
+      await Promise.all(promises);
       await this.loadTodoList();
     },
   }
