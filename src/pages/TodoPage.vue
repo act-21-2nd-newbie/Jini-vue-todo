@@ -41,7 +41,15 @@ export default {
       newTodo: "",
       todoList: [],
       visibility: "showAll",
-      filters: {
+
+    }
+  },
+  async mounted() {
+    await this.loadTodoList();
+  },
+  computed: {
+    filteredTodoList() {
+      let filters = {
         showAll(todoList) {
           return todoList;
         },
@@ -51,15 +59,8 @@ export default {
         showCompleted(todoList) {
           return todoList.filter(x => x.status === "done")
         },
-      }
-    }
-  },
-  async mounted() {
-    await this.loadTodoList();
-  },
-  computed: {
-    filteredTodoList() {
-      return this.filters[this.visibility](this.todoList);
+      };
+      return filters[this.visibility](this.todoList);
     },
     numberOfLeftTodo() {
       return this.todoList.filter(e => e.status === "active").length
@@ -68,7 +69,6 @@ export default {
   methods: {
     async loadTodoList() {
       const response = await getTodoList();
-      console.log(response);
       this.todoList = response;
     },
     async addTodo() {
